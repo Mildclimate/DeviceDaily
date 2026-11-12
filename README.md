@@ -1,97 +1,65 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 设备均价 DeviceDaily
 
-# Getting Started
+记录各类设备（手机 / 电脑 / 手表 / 汽车等）的购入价格与日期，自动计算**日均成本**——随着时间推移逐渐下降。可设置期望日均价，追踪摊薄进度。数据完全本地存储。
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> 数据仅保存在设备本地，无任何联网与云端上传。
 
-## Step 1: Start Metro
+## 技术栈
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- React Native 0.88 (bare, TypeScript)
+- 导航：@react-navigation/native-stack
+- 动画：GSAP 3（补间普通对象 → Animated.Value 桥接）
+- 存储：AsyncStorage + JSON（仓储接口抽象，可替换云端实现）
+- i18n：内置轻量中英双语，可切换并持久化
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 目录结构
 
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```
+src/
+├── app/                 # 应用入口与导航
+├── core/                # 与业务无关的基础设施
+│   ├── animation/       # GSAP 桥接
+│   ├── i18n/            # 国际化
+│   ├── storage/         # AsyncStorage 封装
+│   └── theme/           # 主题 tokens（亮暗色）
+├── components/          # 通用 UI 组件（Screen/Text/Button/Field）
+├── data/                # 数据层：仓储接口 + 本地实现
+├── domain/              # 领域层：设备模型 + 日均成本纯算法
+└── features/
+    └── devices/         # 设备功能模块（screens/components/hooks）
 ```
 
-## Step 2: Build and run your app
+分层原则：`features → data/domain → core`，依赖单向；算法（`domain/pricing.ts`）为纯函数，均有单元测试。
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 开发
 
-### Android
+```bash
+npm install
+cd ios && pod install   # iOS 首次需要
 
-```sh
-# Using npm
-npm run android
+npm start               # Metro
+npm run ios             # 编译运行 iOS
+npm run android         # 编译运行 Android
 
-# OR using Yarn
-yarn android
+npm run typecheck       # 类型检查
+npm run lint            # ESLint
+npm test                # 单元测试
 ```
 
-### iOS
+### 本机构建环境备注
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+- Android：SDK 位于 `/opt/homebrew/share/android-commandlinetools`（已写入 `android/local.properties`，该文件不入库），JDK 17 位于 `~/Developer/tools/jdk-17.0.21+9`，构建时设置 `JAVA_HOME` 指向它
+- iOS：Xcode 27 + CocoaPods；Podfile 的 post_install 已统一 Pods 部署目标，解决 Xcode 27 最低支持 iOS 15 的问题
+- compileSdk 使用 36（SDK 仓库暂未发布 37 正式版）
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 算法说明
 
-```sh
-bundle install
-```
+- 已使用天数：购入当天记为第 1 天
+- 日均成本 = 价格 ÷ 已使用天数（随时间递减）
+- 目标达标：已使用天数 ≥ 价格 ÷ 期望日均价 时达成
+- 摊薄进度 = 已使用天数 ÷ 达标所需天数（上限 1）
 
-Then, and every time you update your native dependencies, run:
+## 下载安装
 
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+在 [Releases](../../releases) 页面下载 APK 安装包（当前 v0.0.1 支持 Android）。
+iOS 端需自行克隆仓库编译。

@@ -1,0 +1,5 @@
+
+# release signing secrets
+android/keystore.properties
+*.keystore
+!android/app/debug.keystore
