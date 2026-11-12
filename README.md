@@ -4,6 +4,14 @@
 
 > 数据仅保存在设备本地，无任何联网与云端上传。
 
+## 演示 Demo
+
+<p align="center">
+  <img src="docs/demo.gif" width="280" alt="DeviceDaily 功能演示：添加设备、查看日均成本与摊薄进度" />
+</p>
+
+演示内容：添加设备 → 设置购入日期与期望日均价 → 卡片展示当前日均价、已用天数与达标进度 → 汇总面板实时更新。
+
 ## 技术栈
 
 - React Native 0.88 (bare, TypeScript)
