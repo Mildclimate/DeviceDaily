@@ -77,3 +77,6 @@ yarn-error.log
 # husky internals
 .husky/_
 keystore.properties
+
+# icon design scratch renders
+vibe_images/
